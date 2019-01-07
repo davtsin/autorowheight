@@ -42,10 +42,10 @@ public class ObjectCollectionDemo {
     public static List<Employee> generateSampleEmployeeData() throws ParseException {
         List<Employee> employees = new ArrayList<Employee>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MMM-dd", Locale.US);
-        employees.add(new Employee("Elsaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaa aaaaaaaaaaa", dateFormat.parse("1970-Jul-10"), 1500, 0.15));
-        employees.add(new Employee("Oleg gggg gggggggg gggggggg gggggggggg ggggggggggggg ggggggggg", dateFormat.parse("1973-Apr-30"), 2300, 0.25));
-        employees.add(new Employee("Neil llllllllll lllllllll ggggggggggggggggggg lllllllllllllll", dateFormat.parse("1975-Oct-05"), 2500, 0.00));
-        employees.add(new Employee("Maria aaaa aaaa aaaaaaaaaa", dateFormat.parse("1978-Jan-07"), 1700, 0.15));
+        employees.add(new Employee("Mr. Bolton, making a visit to Israel, told reporters that American forces would remain in Syria until the last remnants of the Islamic State were defeated and Turkey provided guarantees that it would not strike Kurdish forces allied with the United States. He and other top White House advisers have led a behind-the-scenes effort to slow Mr. Trump’s order and reassure allies, including Israel.", dateFormat.parse("1970-Jul-10"), 1500, 0.15));
+        employees.add(new Employee("WASHINGTON — President Trump’s national security adviser, John R. Bolton, rolled back on Sunday Mr. Trump’s decision to rapidly withdraw from Syria, laying out conditions for a pullout that could leave American forces there for months or even years.", dateFormat.parse("1973-Apr-30"), 2300, 0.25));
+        employees.add(new Employee("Mr. Bolton’s comments inserted into Mr. Trump’s strategy something the president had omitted when he announced on Dec. 19 that the United States would depart within 30 days: any conditions that must be met before the pullout.", dateFormat.parse("1975-Oct-05"), 2500, 0.00));
+        employees.add(new Employee("While Mr. Bolton said on Sunday that he expected American forces to eventually leave northeastern Syria, where most of the 2,000 troops in the country are based for the mission against the Islamic State, he began to lay out an argument for keeping some troops at a garrison in the southeast that is used to monitor the flow of Iranian arms and soldiers. In September, three months before Mr. Trump’s announcement, Mr. Bolton had declared that the United States would remain in Syria as long as Iranians were on the ground there.", dateFormat.parse("1978-Jan-07"), 1700, 0.15));
         employees.add(new Employee("John", dateFormat.parse("1969-May-30"), 2800, 0.20));
         return employees;
     }
