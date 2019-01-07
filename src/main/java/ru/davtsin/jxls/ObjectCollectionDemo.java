@@ -16,11 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Object collection output demo
- *
- * @author Leonid Vysochyn
- */
 public class ObjectCollectionDemo {
     private static Logger logger = LoggerFactory.getLogger(ObjectCollectionDemo.class);
 

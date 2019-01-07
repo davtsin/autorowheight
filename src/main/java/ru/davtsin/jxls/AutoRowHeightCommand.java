@@ -24,8 +24,6 @@ import java.util.Iterator;
 import java.util.Optional;
 
 public class AutoRowHeightCommand extends AbstractCommand {
-
-    // TODO set logger
     private static Logger logger = LoggerFactory.getLogger(AutoRowHeightCommand.class);
     private Area area;
 
