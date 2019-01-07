@@ -21,7 +21,6 @@ import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.text.AttributedString;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 
 public class AutoRowHeightCommand extends AbstractCommand {
@@ -29,9 +28,6 @@ public class AutoRowHeightCommand extends AbstractCommand {
     // TODO set logger
     private static Logger logger = LoggerFactory.getLogger(AutoRowHeightCommand.class);
     private Area area;
-    //    private Cell cellWithMaxValue;
-//    private Float cellWidth;
-    private Integer lineCountForCell;
 
     @Override
     public String getName() {
@@ -62,12 +58,12 @@ public class AutoRowHeightCommand extends AbstractCommand {
                 maxCell = cell;
             }
         }
-        System.out.println("Cell with max value is: " + maxCell.getAddress());
-        System.out.println("Cell value is: " + maxCell.getStringCellValue());
+        logger.debug("Cell with max value: {}. Cell value: {}", maxCell.getAddress(), maxCell.getStringCellValue());
         return maxCell;
     }
 
     private int calculateLineCountForCell(Cell cell) {
+        logger.debug("Calculating line count for cell: {}", cell.getAddress());
         // Create Font object with Font attribute (e.g. Font family, Font size, etc) for calculation
         java.awt.Font currFont = new java.awt.Font("Calibri", 0, 11);
         String cellValue = cell.getStringCellValue();
@@ -80,78 +76,55 @@ public class AutoRowHeightCommand extends AbstractCommand {
         int nextPos = 0;
         int lineCnt = 0;
 
+        float cellWidth = calculateCellWidth(cell);
+
         while (measurer.getPosition() < cellValue.length()) {
-            nextPos = measurer.nextOffset(calculateCellWidth(cell)); // cellWidth is the max width of each line
+            nextPos = measurer.nextOffset(cellWidth); // cellWidth is the max width of each line
             lineCnt++;
             measurer.setPosition(nextPos);
         }
 
-        System.out.println("Line count: " + lineCnt);
+        logger.debug("Line count: {}", lineCnt);
         return lineCnt;
         // The above solution doesn't handle the newline character, i.e. "\n", and only
         // tested under horizontal merged cells.
     }
 
-    // определение щирины ячейки
+    // Определение ширины ячейки. Если ячейка составная, то определется её суммарная ширина.
     public float calculateCellWidth(Cell cell) {
+        logger.debug("Calculating cell width for cell {}", cell.getAddress());
         Optional<CellRangeAddress> cellRangeAddressOptional = getMergedRegionForCell(cell);
         if (!cellRangeAddressOptional.isPresent()) {
             return cell.getSheet().getColumnWidthInPixels(cell.getColumnIndex());
         } else {
             float result = 0;
             CellRangeAddress cellRangeAddress = cellRangeAddressOptional.get();
-            System.out.println("Cell address: " + cellRangeAddress.formatAsString());
-            if (cellRangeAddress.getNumberOfCells() > 1) {
-                System.out.println("Cell " + cell.getAddress() + " is a merged cell");
-                Iterator<CellAddress> cellAddressIt = cellRangeAddress.iterator();
-                while (cellAddressIt.hasNext()) {
-                    CellAddress cellAddress = cellAddressIt.next();
-                    Cell subCell = SheetUtil.getCell(cell.getSheet(),
-                            cellAddress.getRow(),
-                            cellAddress.getColumn());
-                    float subCellWidth = subCell.getSheet().getColumnWidthInPixels(subCell.getColumnIndex());
-                    System.out.println("Width of subcell " + subCell.getAddress() + ": " + subCellWidth);
-                    result += subCell.getSheet().getColumnWidthInPixels(subCell.getColumnIndex());
-                }
-                System.out.println("Result width of " + cell.getAddress() + " is: " + result);
+            Iterator<CellAddress> cellAddressIt = cellRangeAddress.iterator();
+            while (cellAddressIt.hasNext()) {
+                CellAddress cellAddress = cellAddressIt.next();
+                Cell subCell = SheetUtil.getCell(cell.getSheet(),
+                        cellAddress.getRow(),
+                        cellAddress.getColumn());
+                float subCellWidth = subCell.getSheet().getColumnWidthInPixels(subCell.getColumnIndex());
+                logger.debug("Width of subcell {} is {}", subCell.getAddress(), subCellWidth);
+                result += subCell.getSheet().getColumnWidthInPixels(subCell.getColumnIndex());
             }
+            logger.debug("Result width of cell {} is {}", cell.getAddress(), result);
             return result;
         }
     }
 
-    // получение объединенного региона, который занимает ячейка
+    // Получение объединенного региона для ячейки.
     private Optional<CellRangeAddress> getMergedRegionForCell(Cell cell) {
-        System.out.println("Get merged region for cell: " + cell);
-        Optional<CellRangeAddress> result = Optional.empty();
-        if (!isCellInMergedRegion(cell)) {
-            return result;
-        } else {
-            for (CellRangeAddress cellRangeAddress : cell.getSheet().getMergedRegions()) {
-                if (cellRangeAddress.isInRange(cell)) {
-                    result = Optional.of(cellRangeAddress);
-                }
-            }
-        }
-        return result;
-    }
-
-    // является ли ячейка составной
-    private boolean isCellInMergedRegion(Cell cell) {
-        System.out.println("Is cell: " + cell.getAddress() + " in merged region?");
-        List<CellRangeAddress> cellRangeAddresses = cell.getSheet().getMergedRegions();
-        System.out.print("All merged regions: ");
-        cellRangeAddresses.forEach(cellRangeAddress ->
-                System.out.print(cellRangeAddress.formatAsString() + ", "));
-        System.out.println();
-
-        for (CellRangeAddress cellRangeAddress : cellRangeAddresses) {
+        logger.debug("Getting merged region for cell {}", cell.getAddress());
+        for (CellRangeAddress cellRangeAddress : cell.getSheet().getMergedRegions()) {
             if (cellRangeAddress.isInRange(cell)) {
-                System.out.println("Cell " + cell.getAddress() + " is in merged region: " + cellRangeAddress.formatAsString());
-                return true;
+                logger.debug("Cell {} is in merged region {}", cell.getAddress(), cellRangeAddress.formatAsString());
+                return Optional.of(cellRangeAddress);
             }
         }
-        System.out.println("Cell is not in a merged region");
-        return false;
+        logger.debug("Cell {} is not in a merged region", cell.getAddress());
+        return Optional.empty();
     }
 
     @Override
